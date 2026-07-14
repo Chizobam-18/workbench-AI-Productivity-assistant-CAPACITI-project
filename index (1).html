@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workbench — AI Workplace Productivity Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14171c;
+    --panel:#1b1f26;
+    --panel-alt:#20252d;
+    --border:#2a2f38;
+    --text:#edeef0;
+    --muted:#8b91a0;
+    --gold:#e8a33d;
+    --teal:#3ecbb0;
+    --warn:#e2643f;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;}
+  html,body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:var(--teal);}
+
+  .app{display:flex;min-height:100vh;}
+
+  /* ---------- Sidebar / Tool Rack ---------- */
+  .rack{
+    width:250px;
+    flex-shrink:0;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    padding:22px 14px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    padding:6px 10px 20px 10px;
+    border-bottom:1px solid var(--border);
+    margin-bottom:14px;
+  }
+  .brand .mark{
+    width:10px;height:10px;background:var(--gold);border-radius:2px;
+    transform:rotate(45deg);
+    flex-shrink:0;
+  }
+  .brand-name{font-size:19px;font-weight:700;letter-spacing:-0.02em;}
+  .brand-sub{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+
+  .rack-label{
+    font-size:10px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.1em;padding:0 10px;margin:10px 0 8px 0;
+  }
+  .tool{
+    display:flex;align-items:center;gap:11px;
+    padding:11px 10px;border-radius:8px;cursor:pointer;
+    color:var(--muted);border:1px solid transparent;
+    transition:background .15s, color .15s;
+    margin-bottom:3px;
+    font-size:13.5px;
+  }
+  .tool:hover{background:var(--panel-alt);color:var(--text);}
+  .tool.active{
+    background:var(--panel-alt);
+    color:var(--text);
+    border-color:var(--border);
+  }
+  .tool.active .dot{background:var(--gold);}
+  .tool .dot{
+    width:6px;height:6px;border-radius:50%;background:var(--border);
+    flex-shrink:0;transition:background .15s;
+  }
+  .tool .num{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);width:14px;}
+
+  .rack-footer{margin-top:auto;padding:12px 10px 0 10px;border-top:1px solid var(--border);}
+  .key-status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+  .key-status .led{width:7px;height:7px;border-radius:50%;background:var(--warn);}
+  .key-status.on .led{background:var(--teal);}
+  .key-link{background:none;border:none;color:var(--teal);font-size:11px;cursor:pointer;padding:6px 0 0 0;font-family:'Inter',sans-serif;text-decoration:underline;}
+
+  /* ---------- Main ---------- */
+  .main{flex:1;padding:34px 40px;max-width:900px;}
+  .panel-head{margin-bottom:22px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:.06em;}
+  .panel-head h1{font-size:26px;margin:6px 0 6px 0;}
+  .panel-head p{color:var(--muted);font-size:13.5px;max-width:60ch;margin:0;}
+
+  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px;margin-top:16px;}
+  label:first-of-type{margin-top:0;}
+  input[type=text], textarea, select{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    padding:10px 12px;
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    resize:vertical;
+  }
+  textarea{min-height:100px;line-height:1.5;}
+  input:focus, textarea:focus, select:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  .row{display:flex;gap:14px;}
+  .row > div{flex:1;}
+
+  .btn{
+    margin-top:20px;
+    background:var(--gold);
+    color:#191305;
+    border:none;
+    padding:11px 20px;
+    border-radius:8px;
+    font-weight:600;
+    font-size:13.5px;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+
+  /* Prompt console — signature element */
+  .console{
+    margin-top:24px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#101317;
+  }
+  .console-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 12px;
+    background:var(--panel-alt);
+    border-bottom:1px solid var(--border);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;color:var(--muted);
+  }
+  .console-bar .dots{display:flex;gap:5px;}
+  .console-bar .dots span{width:7px;height:7px;border-radius:50%;background:var(--border);}
+  .console pre{
+    margin:0;padding:14px 16px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;line-height:1.6;
+    color:var(--teal);
+    white-space:pre-wrap;
+    max-height:180px;overflow-y:auto;
+  }
+  .output{
+    margin-top:14px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    background:var(--panel);
+    font-size:13.5px;
+    line-height:1.65;
+    white-space:pre-wrap;
+    min-height:60px;
+  }
+  .output.empty{color:var(--muted);font-style:italic;}
+  .output .loading{color:var(--gold);}
+
+  .disclaimer{
+    margin-top:16px;font-size:11px;color:var(--muted);
+    border-left:2px solid var(--warn);padding:8px 12px;background:var(--panel);
+  }
+
+  /* Chatbot */
+  .chat-log{
+    border:1px solid var(--border);border-radius:var(--radius);
+    background:var(--panel);padding:14px;height:340px;overflow-y:auto;
+    display:flex;flex-direction:column;gap:10px;margin-bottom:12px;
+  }
+  .bubble{max-width:78%;padding:9px 13px;border-radius:10px;font-size:13.5px;line-height:1.5;}
+  .bubble.user{align-self:flex-end;background:var(--gold);color:#191305;}
+  .bubble.bot{align-self:flex-start;background:var(--panel-alt);border:1px solid var(--border);white-space:pre-wrap;}
+  .chat-input-row{display:flex;gap:10px;}
+  .chat-input-row textarea{min-height:44px;}
+
+  /* Modal for API key */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(10,12,15,.7);
+    display:none;align-items:center;justify-content:center;z-index:50;
+  }
+  .modal-backdrop.show{display:flex;}
+  .modal{
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:26px;width:420px;max-width:90vw;
+  }
+  .modal h3{margin:0 0 8px 0;font-size:16px;}
+  .modal p{color:var(--muted);font-size:12.5px;line-height:1.5;margin-bottom:14px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+  @media (max-width:760px){
+    .app{flex-direction:column;}
+    .rack{width:100%;flex-direction:row;overflow-x:auto;padding:14px;}
+    .brand,.rack-label,.rack-footer{display:none;}
+    .tool{flex-shrink:0;}
+    .main{padding:22px 18px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Tool Rack (sidebar) -->
+  <div class="rack">
+    <div class="brand">
+      <div class="mark"></div>
+      <div>
+        <div class="brand-name">Workbench</div>
+        <div class="brand-sub">AI Productivity Assistant</div>
+      </div>
+    </div>
+
+    <div class="rack-label">Tools</div>
+    <div class="tool active" data-panel="email"><span class="num">01</span><span class="dot"></span> Email Generator</div>
+    <div class="tool" data-panel="meeting"><span class="num">02</span><span class="dot"></span> Meeting Summarizer</div>
+    <div class="tool" data-panel="planner"><span class="num">03</span><span class="dot"></span> Task Planner</div>
+    <div class="tool" data-panel="research"><span class="num">04</span><span class="dot"></span> Research Assistant</div>
+    <div class="tool" data-panel="chat"><span class="num">05</span><span class="dot"></span> Chatbot Interface</div>
+
+    <div class="rack-footer">
+      <div class="key-status" id="keyStatus"><span class="led"></span> <span id="keyStatusText">No API key set</span></div>
+      <button class="key-link" id="openKeyModal">Set Gemini API key</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- 1. Email Generator -->
+    <section class="panel" id="panel-email">
+      <div class="panel-head">
+        <div class="eyebrow">TOOL 01</div>
+        <h1>Smart Email Generator</h1>
+        <p>Turns a rough context into a polished, audience-appropriate email. Adjust tone and recipient to reshape the same request.</p>
+      </div>
+      <label>Who is this for?</label>
+      <select id="email-audience">
+        <option value="client">Client</option>
+        <option value="manager">Manager</option>
+        <option value="team">Team / colleagues</option>
+      </select>
+      <div class="row">
+        <div>
+          <label>Tone</label>
+          <select id="email-tone">
+            <option value="formal">Formal</option>
+            <option value="informal">Informal</option>
+            <option value="persuasive">Persuasive</option>
+          </select>
+        </div>
+        <div>
+          <label>Purpose (one line)</label>
+          <input type="text" id="email-purpose" placeholder="e.g. asking for a deadline extension">
+        </div>
+      </div>
+      <label>Context / key points to include</label>
+      <textarea id="email-context" placeholder="e.g. The project is delayed because of a supplier issue, I need 3 extra days, and I want to reassure them quality won't suffer."></textarea>
+      <button class="btn" data-run="email">Generate email</button>
+      <div class="console" id="email-console" style="display:none;">
+        <div class="console-bar"><div class="dots"><span></span><span></span><span></span></div> prompt sent to gemini-2.0-flash</div>
+        <pre id="email-prompt"></pre>
+      </div>
+      <div class="output empty" id="email-output">Your generated email will appear here.</div>
+    </section>
+
+    <!-- 2. Meeting Summarizer -->
+    <section class="panel" id="panel-meeting" style="display:none;">
+      <div class="panel-head">
+        <div class="eyebrow">TOOL 02</div>
+        <h1>Meeting Notes Summarizer</h1>
+        <p>Paste raw, messy meeting notes. Get a structured summary with decisions, action items, owners, and deadlines pulled out.</p>
+      </div>
+      <label>Paste your meeting notes</label>
+      <textarea id="meeting-notes" style="min-height:160px;" placeholder="Paste rough notes, a transcript, or bullet points from the meeting here..."></textarea>
+      <button class="btn" data-run="meeting">Summarize notes</button>
+      <div class="console" id="meeting-console" style="display:none;">
+        <div class="console-bar"><div class="dots"><span></span><span></span><span></span></div> prompt sent to gemini-2.0-flash</div>
+        <pre id="meeting-prompt"></pre>
+      </div>
+      <div class="output empty" id="meeting-output">Your structured summary will appear here.</div>
+    </section>
+
+    <!-- 3. Task Planner -->
+    <section class="panel" id="panel-planner" style="display:none;">
+      <div class="panel-head">
+        <div class="eyebrow">TOOL 03</div>
+        <h1>AI Task Planner / Scheduler</h1>
+        <p>List what's on your plate. Get it organized into a prioritized daily or weekly plan with time-optimization suggestions.</p>
+      </div>
+      <label>Plan for</label>
+      <select id="planner-range">
+        <option value="today">Today</option>
+        <option value="this week">This week</option>
+      </select>
+      <label>List your tasks (one per line, note urgency if you know it)</label>
+      <textarea id="planner-tasks" style="min-height:140px;" placeholder="e.g.&#10;Finish CAPACITI POE submission - due Friday 11am&#10;Reply to NSFAS email&#10;Prep for Pedros interview&#10;Study for maths upgrade exam"></textarea>
+      <button class="btn" data-run="planner">Build my plan</button>
+      <div class="console" id="planner-console" style="display:none;">
+        <div class="console-bar"><div class="dots"><span></span><span></span><span></span></div> prompt sent to gemini-2.0-flash</div>
+        <pre id="planner-prompt"></pre>
+      </div>
+      <div class="output empty" id="planner-output">Your prioritized plan will appear here.</div>
+    </section>
+
+    <!-- 4. Research Assistant -->
+    <section class="panel" id="panel-research" style="display:none;">
+      <div class="panel-head">
+        <div class="eyebrow">TOOL 04</div>
+        <h1>AI Research Assistant</h1>
+        <p>Paste an article, report, or block of text — or just a topic — and get key insights in plain language.</p>
+      </div>
+      <label>Topic, article text, or question</label>
+      <textarea id="research-input" style="min-height:160px;" placeholder="Paste an article, or type a topic like 'NSFAS self-sufficient student status requirements'"></textarea>
+      <button class="btn" data-run="research">Get insights</button>
+      <div class="console" id="research-console" style="display:none;">
+        <div class="console-bar"><div class="dots"><span></span><span></span><span></span></div> prompt sent to gemini-2.0-flash</div>
+        <pre id="research-prompt"></pre>
+      </div>
+      <div class="output empty" id="research-output">Key insights will appear here.</div>
+      <div class="disclaimer">⚠ AI-generated research summaries can be incomplete or inaccurate. Always verify important facts (deadlines, eligibility, figures) against the original source before acting on them.</div>
+    </section>
+
+    <!-- 5. Chatbot -->
+    <section class="panel" id="panel-chat" style="display:none;">
+      <div class="panel-head">
+        <div class="eyebrow">TOOL 05</div>
+        <h1>AI Chatbot Interface</h1>
+        <p>A general workplace assistant you can ask anything — drafting, brainstorming, quick questions.</p>
+      </div>
+      <div class="chat-log" id="chat-log">
+        <div class="bubble bot">Hi! I'm your workplace assistant. Ask me anything — from drafting a message to explaining a concept.</div>
+      </div>
+      <div class="chat-input-row">
+        <textarea id="chat-input" placeholder="Type a message..."></textarea>
+        <button class="btn" style="margin-top:0;" id="chat-send">Send</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- API Key Modal -->
+<div class="modal-backdrop" id="keyModal">
+  <div class="modal">
+    <h3>Connect your Gemini API key</h3>
+    <p>This app calls the Google Gemini API directly from your browser. Your key is kept only in this browser tab's memory — it is never saved to a file, sent to any server, or written to storage. It clears when you refresh the page. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a>.</p>
+    <input type="text" id="apiKeyInput" placeholder="Paste your Gemini API key here">
+    <div class="modal-actions">
+      <button class="btn ghost" id="cancelKey">Cancel</button>
+      <button class="btn" id="saveKey">Save for this session</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------------- State ----------------
+  let GEMINI_KEY = "";
+  const MODEL = "gemini-2.0-flash";
+
+  // ---------------- Navigation ----------------
+  document.querySelectorAll(".tool").forEach(tool=>{
+    tool.addEventListener("click", ()=>{
+      document.querySelectorAll(".tool").forEach(t=>t.classList.remove("active"));
+      tool.classList.add("active");
+      document.querySelectorAll(".panel").forEach(p=>p.style.display="none");
+      document.getElementById("panel-"+tool.dataset.panel).style.display="block";
+    });
+  });
+
+  // ---------------- API Key Modal ----------------
+  const modal = document.getElementById("keyModal");
+  document.getElementById("openKeyModal").addEventListener("click", ()=> modal.classList.add("show"));
+  document.getElementById("cancelKey").addEventListener("click", ()=> modal.classList.remove("show"));
+  document.getElementById("saveKey").addEventListener("click", ()=>{
+    const val = document.getElementById("apiKeyInput").value.trim();
+    if(val){
+      GEMINI_KEY = val;
+      document.getElementById("keyStatus").classList.add("on");
+      document.getElementById("keyStatusText").textContent = "API key active";
+    }
+    modal.classList.remove("show");
+  });
+
+  // ---------------- Gemini call ----------------
+  async function callGemini(prompt){
+    if(!GEMINI_KEY){
+      modal.classList.add("show");
+      throw new Error("NO_KEY");
+    }
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_KEY}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    });
+    if(!res.ok){
+      const errText = await res.text();
+      throw new Error("API error: " + res.status + " " + errText.slice(0,200));
+    }
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map(p=>p.text).join("") || "(No response returned.)";
+    return text;
+  }
+
+  function showPrompt(consoleId, promptId, promptText){
+    document.getElementById(consoleId).style.display = "block";
+    document.getElementById(promptId).textContent = promptText;
+  }
+
+  function setOutput(id, text, isError=false){
+    const el = document.getElementById(id);
+    el.classList.remove("empty");
+    el.textContent = text;
+    el.style.color = isError ? "#e2643f" : "";
+  }
+
+  function setLoading(id){
+    const el = document.getElementById(id);
+    el.classList.remove("empty");
+    el.innerHTML = '<span class="loading">Thinking…</span>';
+  }
+
+  // ---------------- Prompt builders (prompt engineering lives here) ----------------
+  function buildEmailPrompt(){
+    const audience = document.getElementById("email-audience").value;
+    const tone = document.getElementById("email-tone").value;
+    const purpose = document.getElementById("email-purpose").value || "a general update";
+    const context = document.getElementById("email-context").value || "No additional context given.";
+    return `You are a professional communications assistant writing on behalf of a South African employee.
+
+Write a ${tone} email to a ${audience}.
+Purpose: ${purpose}
+Context and key points to include: ${context}
+
+Requirements:
+- Match the tone precisely: formal = polished and businesslike; informal = warm and conversational but still professional; persuasive = confident and benefit-led without being pushy.
+- Adjust formality and detail to suit a ${audience} (clients need more context and courtesy; managers need brevity and clear asks; teams can be more casual).
+- Include a subject line.
+- Keep it concise — no more than 150 words in the body.
+- Do not invent facts not present in the context.
+Output only the email (subject line + body), nothing else.`;
+  }
+
+  function buildMeetingPrompt(){
+    const notes = document.getElementById("meeting-notes").value || "No notes provided.";
+    return `You are a meeting-notes summarizer for a busy professional.
+
+Raw meeting notes:
+"""
+${notes}
+"""
+
+Produce a structured summary with these exact sections:
+1. Key Points (max 5 bullets)
+2. Decisions Made
+3. Action Items (format: - [Owner if mentioned, else "Unassigned"] Task — Deadline if mentioned, else "No deadline given")
+4. Open Questions / Follow-ups
+
+Only use information present in the notes. If a section has nothing relevant, write "None noted."`;
+  }
+
+  function buildPlannerPrompt(){
+    const range = document.getElementById("planner-range").value;
+    const tasks = document.getElementById("planner-tasks").value || "No tasks provided.";
+    return `You are a task-planning assistant helping a student/job-seeker organize their workload.
+
+Tasks for ${range}:
+"""
+${tasks}
+"""
+
+Produce:
+1. A prioritized list ordered by urgency and importance (state your reasoning briefly for the top 2 items only).
+2. A suggested time-blocked schedule for ${range} (realistic blocks, assume normal waking hours and time for travel by public transport if relevant).
+3. One time-optimization tip specific to this list (e.g. batching, combining errands, quick wins first).
+
+Be concise and practical. Do not add tasks that weren't listed.`;
+  }
+
+  function buildResearchPrompt(){
+    const input = document.getElementById("research-input").value || "No input provided.";
+    return `You are a research assistant that simplifies information for quick understanding.
+
+Source material or topic:
+"""
+${input}
+"""
+
+Produce:
+1. A 2-3 sentence plain-language overview.
+2. 3-5 key insights as bullets.
+3. One practical recommendation based on the insights.
+4. A brief note on any limitations, uncertainty, or bias in this summary (e.g. "based on general knowledge, verify specifics" if no source was pasted).
+
+Keep the whole response under 200 words.`;
+  }
+
+  // ---------------- Wire up buttons ----------------
+  document.querySelectorAll("[data-run]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const tool = btn.dataset.run;
+      const builders = {email: buildEmailPrompt, meeting: buildMeetingPrompt, planner: buildPlannerPrompt, research: buildResearchPrompt};
+      const prompt = builders[tool]();
+      showPrompt(tool+"-console", tool+"-prompt", prompt);
+      setLoading(tool+"-output");
+      btn.disabled = true;
+      try{
+        const result = await callGemini(prompt);
+        setOutput(tool+"-output", result);
+      }catch(e){
+        if(e.message !== "NO_KEY"){
+          setOutput(tool+"-output", "Something went wrong: " + e.message, true);
+        }else{
+          setOutput(tool+"-output", "Add your Gemini API key first (top left) to run this tool.", true);
+        }
+      }
+      btn.disabled = false;
+    });
+  });
+
+  // ---------------- Chat ----------------
+  const chatLog = document.getElementById("chat-log");
+  const chatHistory = [];
+
+  function addBubble(text, who){
+    const b = document.createElement("div");
+    b.className = "bubble " + who;
+    b.textContent = text;
+    chatLog.appendChild(b);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return b;
+  }
+
+  document.getElementById("chat-send").addEventListener("click", sendChat);
+  document.getElementById("chat-input").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); sendChat(); }
+  });
+
+  async function sendChat(){
+    const input = document.getElementById("chat-input");
+    const msg = input.value.trim();
+    if(!msg) return;
+    addBubble(msg, "user");
+    chatHistory.push({role:"user", text:msg});
+    input.value = "";
+    const thinking = addBubble("…", "bot");
+
+    const conversation = chatHistory.map(h => (h.role==="user"?"User: ":"Assistant: ") + h.text).join("\n");
+    const prompt = `You are a helpful, concise workplace productivity assistant embedded in a tool called Workbench. Answer clearly and practically. If asked something outside your knowledge or that requires up-to-date facts, say so honestly rather than guessing.
+
+Conversation so far:
+${conversation}
+
+Respond to the latest user message only, in a natural chat style (no need to repeat the question).`;
+
+    try{
+      const result = await callGemini(prompt);
+      thinking.textContent = result;
+      chatHistory.push({role:"bot", text:result});
+    }catch(e){
+      if(e.message === "NO_KEY"){
+        thinking.textContent = "Add your Gemini API key first (top left) so I can respond.";
+      }else{
+        thinking.textContent = "Something went wrong: " + e.message;
+      }
+    }
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+</script>
+
+</body>
+</html>
