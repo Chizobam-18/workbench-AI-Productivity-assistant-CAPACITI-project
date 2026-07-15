@@ -1,3 +1,8 @@
+
+Chizobam Tracey <traceychizobam@gmail.com>
+9:43 AM (0 minutes ago)
+to Chizobam.Chukwuyem
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +26,7 @@
         </div>
         <div class="flex items-center space-x-2 bg-slate-700/50 px-3 py-1.5 rounded-full border border-slate-600">
             <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-            <span class="text-xs font-semibold text-slate-300">System Ready</span>
+            <span class="text-xs font-semibold text-slate-300">Offline Engine Ready</span>
         </div>
     </header>
 
@@ -207,7 +212,7 @@
             });
         }
 
-        // Email Generation Logic (Rule-based Prompt Simulation Engine)
+        // Offline Rule-based Professional Simulation Engine
         function generateEmail() {
             const audience = document.getElementById('email-audience').value;
             const tone = document.getElementById('email-tone').value;
@@ -217,33 +222,33 @@
             let body = "";
 
             if (tone === "Formal") {
-                subject = `Subject: Inquiry Regarding Project Development Status: ${context.substring(0, 30)}...`;
-                body = `Dear ${audience === 'Manager' ? 'Manager' : audience === 'Client' ? 'Valued Client' : 'Team Members'},\n\nI trust this email finds you well.\n\nI am writing to officially request assistance regarding our progress. Specifically, we are currently experiencing constraints regarding: "${context}".\n\nCould we please schedule a brief alignment or could you provide guidance on how to resolve this at your earliest convenience?\n\nThank you for your continued collaboration and professional support.\n\nSincerely,\n[Your Name]\nAI Workplace Assistant`;
+                subject = `Subject: Professional Inquiry: Clarification Regarding ${context.substring(0, 30)}...`;
+                body = `Dear ${audience === 'Manager' ? 'Manager' : audience === 'Client' ? 'Valued Client' : 'Team Members'},\n\nI trust this email finds you well.\n\nI am reaching out regarding our workplace operations and requested progress. Specifically, I would like to clarify the following context: \n\n"${context}"\n\nCould we please schedule a brief alignment session or could you provide additional direction on how we can address this efficiently?\n\nThank you for your valuable feedback and guidance.\n\nSincerely,\n[Your Name]\nCAPACITI Workspace Assistant`;
             } else if (tone === "Informal") {
-                subject = `Subject: Quick catch up about: ${context.substring(0, 30)}...`;
-                body = `Hi ${audience === 'Manager' ? 'boss' : audience === 'Client' ? 'there' : 'everyone'},\n\nHope your week is going great!\n\nJust wanted to check in quickly regarding "${context}". Let me know if we need to hop on a call or if there's anything I can take off your plate to keep things moving forward.\n\nCatch you soon,\n[Your Name]`;
+                subject = `Subject: Quick catch up: ${context.substring(0, 30)}...`;
+                body = `Hi ${audience === 'Manager' ? 'boss' : audience === 'Client' ? 'there' : 'everyone'},\n\nHope you are having a productive week!\n\nI wanted to share a quick update on: "${context}".\n\nLet me know if you have any questions or if we should set aside 5 minutes later to discuss this.\n\nBest,\n[Your Name]`;
             } else {
-                subject = `Subject: URGENT: Action Required - ${context.substring(0, 30)}...`;
-                body = `Dear ${audience === 'Manager' ? 'Manager' : audience === 'Client' ? 'Client' : 'Team'},\n\nWe urgently require your attention regarding: "${context}".\n\nTo meet our critical project timeline and deliver the quality expected, we need clarification and resolution on this matter by end of business day today.\n\nYour prompt response is essential to prevent any launch delays.\n\nBest regards,\n[Your Name]`;
+                subject = `Subject: ACTION REQUIRED: Urgent Context Regarding ${context.substring(0, 20)}...`;
+                body = `Dear ${audience === 'Manager' ? 'Manager' : audience === 'Client' ? 'Client' : 'Team'},\n\nWe urgently require your input or review regarding the following matter:\n\n"${context}"\n\nTo ensure we meet our project milestones without delay, please let us know your availability to discuss this as soon as possible.\n\nThank you for your prompt attention to this matter.\n\nBest regards,\n[Your Name]`;
             }
 
             document.getElementById('email-output').textContent = `${subject}\n\n${body}`;
             document.getElementById('email-output-container').classList.remove('hidden');
         }
 
-        // Meeting Summary Logic
+        // Offline Summary Logic
         function generateSummary() {
-            const notes = document.getElementById('meeting-notes').value || "No detailed discussion captured.";
+            const notes = document.getElementById('meeting-notes').value || "Drafting project outlines and coordinating milestone timelines.";
             const outputDiv = document.getElementById('meetings-output');
             
             outputDiv.innerHTML = `
                 <div class="border-l-4 border-green-500 pl-4 space-y-2">
                     <h3 class="text-md font-bold text-white uppercase tracking-wider">🎯 Key Decisions Made</h3>
-                    <p class="text-sm text-slate-300">1. Agreed to proceed with current sprint planning with immediate effect.<br>2. Approved the context framework concerning: "${notes.substring(0, 60)}..."</p>
+                    <p class="text-sm text-slate-300">1. Decided to proceed with immediate operational execution.<br>2. Confirmed current targets regarding: "${notes.substring(0, 60)}..."</p>
                 </div>
                 <div class="border-l-4 border-amber-500 pl-4 space-y-2">
                     <h3 class="text-md font-bold text-white uppercase tracking-wider">📋 Action Items & Owners</h3>
-                    <p class="text-sm text-slate-300"><strong>[Lead Developer]:</strong> Review application architecture for compliance.<br><strong>[Operations Specialist]:</strong> Set up standard repository folders and review deployment checklists.</p>
+                    <p class="text-sm text-slate-300"><strong>[Lead Developer]:</strong> Implement system features as planned.<br><strong>[Operations Specialist]:</strong> Verify that final deployment steps and deliverables match objectives.</p>
                 </div>
                 <div class="border-l-4 border-red-500 pl-4 space-y-2">
                     <h3 class="text-md font-bold text-white uppercase tracking-wider">⏰ Target Deadlines</h3>
@@ -253,7 +258,7 @@
             document.getElementById('meetings-output-container').classList.remove('hidden');
         }
 
-        // Task Planner Logic
+        // Offline Task Planner Logic
         function generatePlan() {
             const scope = document.getElementById('plan-scope').value;
             const focus = document.getElementById('plan-focus').value || "General Productivity";
