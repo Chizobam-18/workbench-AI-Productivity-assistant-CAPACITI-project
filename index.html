@@ -1,8 +1,3 @@
-
-Chizobam Tracey <traceychizobam@gmail.com>
-9:43 AM (0 minutes ago)
-to Chizobam.Chukwuyem
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,14 +21,14 @@ to Chizobam.Chukwuyem
         </div>
         <div class="flex items-center space-x-2 bg-slate-700/50 px-3 py-1.5 rounded-full border border-slate-600">
             <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-            <span class="text-xs font-semibold text-slate-300">Offline Engine Ready</span>
+            <span class="text-xs font-semibold text-slate-300">Offline Intelligence Ready</span>
         </div>
     </header>
 
     <div class="flex-1 flex flex-col lg:flex-row">
         
-        <aside class="w-full lg:w-64 bg-slate-800/50 border-r border-slate-700 p-4 space-y-2">
-            <p class="text-xs font-semibold text-slate-500 uppercase px-3 tracking-wider">Features</p>
+        <aside class="w-full lg:w-64 bg-slate-800/50 border-r border-slate-700 p-4 space-y-2 col-span-3">
+            <p class="text-xs font-semibold text-slate-500 uppercase px-3 tracking-wider mb-2">Features</p>
             <nav class="space-y-1">
                 <button onclick="switchTab('email')" id="tab-email" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-blue-600/10 text-blue-400 border border-blue-500/20">
                     <i data-lucide="mail" class="w-5 h-5"></i>
@@ -46,6 +41,10 @@ to Chizobam.Chukwuyem
                 <button onclick="switchTab('planner')" id="tab-planner" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:bg-slate-800 hover:text-slate-200">
                     <i data-lucide="calendar" class="w-5 h-5"></i>
                     <span>AI Task Planner</span>
+                </button>
+                <button onclick="switchTab('chatbot')" id="tab-chatbot" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-slate-400 hover:bg-slate-800 hover:text-slate-200">
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                    <span>AI Chatbot & Research</span>
                 </button>
             </nav>
         </aside>
@@ -175,6 +174,32 @@ to Chizobam.Chukwuyem
                 </div>
             </section>
 
+            <section id="content-chatbot" class="hidden space-y-6">
+                <div class="border-b border-slate-700 pb-4">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i data-lucide="message-square" class="text-indigo-500"></i> AI Chatbot & Research Assistant
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">Chat directly with the productivity core or search concepts to draft insights and get swift work direction.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700 rounded-lg p-4 h-64 overflow-y-auto space-y-3" id="chat-box">
+                    <div class="flex gap-2.5">
+                        <div class="bg-indigo-600/20 text-indigo-400 h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                        <div class="bg-slate-700/50 p-2.5 rounded-lg rounded-tl-none text-sm text-slate-200">
+                            Hello! I am your CAPACITI Workplace Research Chatbot. Ask me any business, marketing, coding, or writing questions, and I will assist you instantly!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <input id="chat-input" type="text" placeholder="e.g., Explain SWOT Analysis or Write marketing strategy details..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-200 focus:outline-none focus:border-indigo-500 placeholder-slate-500 text-sm" onkeydown="if(event.key === 'Enter') sendChatMessage()">
+                    <button onclick="sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 rounded-lg transition flex items-center gap-1">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>Send</span>
+                    </button>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -197,7 +222,7 @@ to Chizobam.Chukwuyem
 
         // Navigation Switcher
         function switchTab(tabId) {
-            const sections = ['email', 'meetings', 'planner'];
+            const sections = ['email', 'meetings', 'planner', 'chatbot'];
             sections.forEach(sec => {
                 const element = document.getElementById(`content-${sec}`);
                 const tabButton = document.getElementById(`tab-${sec}`);
@@ -303,6 +328,55 @@ to Chizobam.Chukwuyem
                 </div>
             `;
             document.getElementById('planner-output-container').classList.remove('hidden');
+        }
+
+        // Chatbot Integration Logic
+        function sendChatMessage() {
+            const chatBox = document.getElementById('chat-box');
+            const chatInput = document.getElementById('chat-input');
+            const messageText = chatInput.value.trim();
+
+            if (!messageText) return;
+
+            // Render User Message
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = "flex gap-2.5 justify-end";
+            userMsgDiv.innerHTML = `
+                <div class="bg-indigo-600 p-2.5 rounded-lg rounded-tr-none text-sm text-white max-w-lg">
+                    ${messageText}
+                </div>
+                <div class="bg-indigo-500 text-white h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">ME</div>
+            `;
+            chatBox.appendChild(userMsgDiv);
+            chatInput.value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Generate AI Chatbot & Research Response Simulation
+            setTimeout(() => {
+                let aiResponse = "";
+                const lowerText = messageText.toLowerCase();
+
+                if (lowerText.includes("swot")) {
+                    aiResponse = "<strong>SWOT Analysis Framework</strong>:<br><br>• <strong>Strengths</strong>: Internal positive attributes (e.g., highly skilled core CAPACITI developers).<br>• <strong>Weaknesses</strong>: Internal limitations (e.g., reliance on external API access).<br>• <strong>Opportunities</strong>: External favorable conditions (e.g., increasing demand for local enterprise automation).<br>• <strong>Threats</strong>: External roadblocks (e.g., severe market competition).";
+                } else if (lowerText.includes("marketing") || lowerText.includes("strategy")) {
+                    aiResponse = "<strong>Strategic Marketing Directive</strong>:<br>To launch your project successfully, prioritize a three-stage marketing plan:<br>1. <strong>Pre-Launch (Awareness)</strong>: Demonstrate functional prototypes to target corporate lines.<br>2. <strong>Launch (Conversion)</strong>: Offer localized trial session periods to gather direct user feedback.<br>3. <strong>Post-Launch (Retention)</strong>: Provide continuous platform feature scaling based on client operations.";
+                } else if (lowerText.includes("code") || lowerText.includes("html") || lowerText.includes("css")) {
+                    aiResponse = "<strong>Technical Assistant Insight</strong>:<br>This dashboard utilizes clean, responsive utility-first <strong>Tailwind CSS classes</strong> and reactive vanilla JavaScript routines to handle UI tabs, generate form logic, and process custom templates dynamically without requiring heavy backend overhead.";
+                } else {
+                    aiResponse = `<strong>CAPACITI Productivity Intelligence Summary</strong>:<br><br>Regarding your query: <em>"${messageText}"</em><br><br>To address this challenge effectively in the workplace:<br>1. Structure the foundational objectives into actionable sub-tasks.<br>2. Delegate task modules clearly across team members.<br>3. Define measurable key performance milestones with weekly check-ins.`;
+                }
+
+                const aiMsgDiv = document.createElement('div');
+                aiMsgDiv.className = "flex gap-2.5";
+                aiMsgDiv.innerHTML = `
+                    <div class="bg-indigo-600/20 text-indigo-400 h-8 w-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0">AI</div>
+                    <div class="bg-slate-700/50 p-2.5 rounded-lg rounded-tl-none text-sm text-slate-200 max-w-lg leading-relaxed">
+                        ${aiResponse}
+                    </div>
+                `;
+                chatBox.appendChild(aiMsgDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 550);
         }
 
         // Copy Helper
